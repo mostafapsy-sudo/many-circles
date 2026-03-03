@@ -3,100 +3,33 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Many Circles Nursery - إدارة الحضور</title>
+    <title>Many Circles Nursery - إدارة الحضور (مُحدَّث)</title>
     <!-- Bootstrap 5 RTL -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.rtl.min.css">
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <!-- html2pdf (لطباعة PDF) -->
+    <!-- html2pdf -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <style>
-        body {
-            background: #f8f9fa;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-        .logo {
-            font-size: 2rem;
-            font-weight: bold;
-            color: #2c3e50;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
-        }
-        .circle-icon {
-            color: #3498db;
-        }
-        .card {
-            border-radius: 15px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            margin-bottom: 20px;
-        }
-        .btn-circle {
-            border-radius: 30px;
-            padding: 10px 30px;
-            font-weight: 600;
-        }
-        .hidden {
-            display: none !important;
-        }
-        .pointer {
-            cursor: pointer;
-        }
-        .teacher-row {
-            background-color: #fff;
-            transition: all 0.2s;
-        }
-        .teacher-row:hover {
-            background-color: #f1f4f9;
-        }
-        .day-cell {
-            text-align: center;
-            vertical-align: middle;
-        }
-        .present-badge {
-            background-color: #d4edda;
-            color: #155724;
-            border-radius: 20px;
-            padding: 2px 8px;
-        }
-        .absent-badge {
-            background-color: #f8d7da;
-            color: #721c24;
-            border-radius: 20px;
-            padding: 2px 8px;
-        }
+        body { background: #f8f9fa; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        .logo { font-size: 2rem; font-weight: bold; color: #2c3e50; text-shadow: 2px 2px 4px rgba(0,0,0,0.1); }
+        .circle-icon { color: #3498db; }
+        .card { border-radius: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        .btn-circle { border-radius: 30px; padding: 10px 30px; font-weight: 600; }
+        .hidden { display: none !important; }
+        .pointer { cursor: pointer; }
+        .teacher-row { background-color: #fff; transition: all 0.2s; }
+        .teacher-row:hover { background-color: #f1f4f9; }
+        .day-cell { text-align: center; vertical-align: middle; }
+        .present-badge { background-color: #d4edda; color: #155724; border-radius: 20px; padding: 2px 8px; }
+        .absent-badge { background-color: #f8d7da; color: #721c24; border-radius: 20px; padding: 2px 8px; }
         .print-only { display: none; }
-        @media print {
-            .no-print { display: none; }
-            .print-only { display: block; }
-        }
-       #addTeacherBtn{
-         margin-bottom: 20px;
-       }
-       #summaryReportBtn{
-         margin-bottom:20px ;
-       }
-       #detailedReportBtn{
-         margin-bottom: 20px;
-       }
-       #editAttendanceBtn{
-         margin-bottom: 20px;
-       }
-       #applyPoints{
-         margin: 80px;
-       }
-       #backupBtn{
-         margin-bottom: 20px;
-       }
-       #restoreBtn{
-         margin-bottom: 20px;
-       }
-       #changeAdminPassBtn{
-         margin-bottom: 20px;
-       }
+        @media print { .no-print { display: none; } .print-only { display: block; } }
     </style>
 </head>
 <body>
     <div class="container-fluid py-3">
-        <!-- ========== الشاشة الرئيسية ========== -->
+        <!-- الشاشة الرئيسية -->
         <div id="mainScreen" class="text-center">
             <div class="mt-5">
                 <i class="fas fa-circle circle-icon fa-3x"></i>
@@ -108,7 +41,7 @@
             </div>
         </div>
 
-        <!-- ========== شاشة دخول الإدارة (كلمة السر) ========== -->
+        <!-- شاشة دخول الإدارة -->
         <div id="adminLoginScreen" class="hidden">
             <div class="card p-4 mx-auto" style="max-width: 400px;">
                 <h4 class="text-center">دخول الإدارة</h4>
@@ -121,7 +54,7 @@
             </div>
         </div>
 
-        <!-- ========== شاشة دخول المدرسات ========== -->
+        <!-- شاشة دخول المدرسات -->
         <div id="teacherLoginScreen" class="hidden">
             <div class="card p-4 mx-auto" style="max-width: 400px;">
                 <h4 class="text-center">تسجيل دخول المدرسات</h4>
@@ -135,20 +68,16 @@
             </div>
         </div>
 
-        <!-- ========== لوحة تحكم الإدارة ========== -->
+        <!-- لوحة تحكم الإدارة -->
         <div id="adminPanel" class="hidden">
             <div class="d-flex justify-content-between align-items-center">
                 <h3><i class="fas fa-cog"></i> لوحة الإدارة</h3>
                 <button class="btn btn-outline-danger" id="logoutAdmin"><i class="fas fa-sign-out-alt"></i> خروج</button>
             </div>
             <hr>
-            <!-- أزرار الإدارة الرئيسية -->
             <div class="row mb-3">
-                
                 <div class="col-md-3"><button class="btn btn-warning w-100" id="addTeacherBtn"><i class="fas fa-plus"></i> إضافة معلمة</button></div>
-                
                 <div class="col-md-3"><button class="btn btn-info w-100" id="summaryReportBtn"><i class="fas fa-chart-pie"></i> ملخص الحضور</button></div>
-                
                 <div class="col-md-3"><button class="btn btn-secondary w-100" id="detailedReportBtn"><i class="fas fa-table"></i> التقرير التفصيلي</button></div>
                 <div class="col-md-3"><button class="btn btn-dark w-100" id="editAttendanceBtn"><i class="fas fa-edit"></i> تعديل التسجيلات</button></div>
             </div>
@@ -157,11 +86,10 @@
                 <div class="col-md-3"><button class="btn btn-success w-100" id="restoreBtn"><i class="fas fa-upload"></i> استعادة نسخة</button></div>
                 <div class="col-md-3"><button class="btn btn-danger w-100" id="changeAdminPassBtn"><i class="fas fa-key"></i> تغيير باسورد الإدارة</button></div>
             </div>
-            <!-- منطقة عرض المحتوى الديناميكي للإدارة -->
             <div id="adminContent"></div>
         </div>
 
-        <!-- ========== لوحة المدرسة ========== -->
+        <!-- لوحة المدرسة -->
         <div id="teacherPanel" class="hidden">
             <div class="d-flex justify-content-between align-items-center">
                 <h3><i class="fas fa-user-graduate"></i> مرحباً <span id="teacherNameDisplay"></span></h3>
@@ -172,12 +100,10 @@
                 <button class="btn btn-lg btn-success mx-2" id="checkInBtn"><i class="fas fa-sign-in-alt"></i> تسجيل حضور</button>
                 <button class="btn btn-lg btn-danger mx-2" id="checkOutBtn"><i class="fas fa-sign-out-alt"></i> تسجيل انصراف</button>
             </div>
-            <div id="teacherMonthDisplay" class="table-responsive">
-                <!-- يتم تعبئتها بالجداول -->
-            </div>
+            <div id="teacherMonthDisplay" class="table-responsive"></div>
         </div>
 
-        <!-- Modal عام لتعديل/إضافة معلمة -->
+        <!-- Modal لتعديل/إضافة معلمة -->
         <div class="modal fade" id="teacherModal" tabindex="-1" aria-hidden="true">
             <div class="modal-dialog">
                 <div class="modal-content">
@@ -185,9 +111,7 @@
                         <h5 class="modal-title" id="teacherModalTitle">إضافة معلمة</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
-                    <div class="modal-body" id="teacherModalBody">
-                        <!-- يتم حقن الحقول عبر js -->
-                    </div>
+                    <div class="modal-body" id="teacherModalBody"></div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إلغاء</button>
                         <button type="button" class="btn btn-primary" id="saveTeacherBtn">حفظ</button>
@@ -201,7 +125,7 @@
     <script type="module">
     // ======================== إعداد Firebase ========================
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getDatabase, ref, set, get, child } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+    import { getDatabase, ref, set, get, child, update } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
     const firebaseConfig = {
         apiKey: "AIzaSyAhTR9RWnZnYhwXLwP1RFOpMAXU6lZhc-M",
@@ -210,21 +134,19 @@
         projectId: "mc-new-attendnce",
         storageBucket: "mc-new-attendnce.firebasestorage.app",
         messagingSenderId: "151106676340",
-        appId: "1:151106676340:web:4f6da509a0c6bd1df95321",
-        measurementId: "G-FT8CJGG6MC"
+        appId: "1:151106676340:web:4f6da509a0c6bd1df95321"
     };
 
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
 
     // ======================== البيانات العامة ========================
-    let teachers = [];
-    let adminPassword = "1234"; // القيمة الافتراضية
-    let currentTeacherId = null;
+    let teachers = [];               // مصفوفة داخلية لتسهيل التعامل
+    let adminPassword = "1234";
     let currentMonth = new Date().getMonth();
     let currentYear = new Date().getFullYear();
 
-    // دالة مساعدة لتنسيق التاريخ محلياً (بدون تأثير UTC)
+    // ======================== دوال مساعدة ========================
     function formatDateLocal(date) {
         let year = date.getFullYear();
         let month = (date.getMonth() + 1).toString().padStart(2, '0');
@@ -232,19 +154,16 @@
         return `${year}-${month}-${day}`;
     }
 
-    // دوال مساعدة للأيام (نفسها)
     function getWorkingDaysInMonth(year, month) {
-    let days = [];
-    let lastDay = new Date(year, month + 1, 0).getDate();
-    for (let d = 1; d <= lastDay; d++) {
-        let currentDate = new Date(year, month, d);
-        let dayOfWeek = currentDate.getDay();
-        if (dayOfWeek !== 5 && dayOfWeek !== 6) {
-            days.push(currentDate);
+        let days = [];
+        let lastDay = new Date(year, month + 1, 0).getDate();
+        for (let d = 1; d <= lastDay; d++) {
+            let currentDate = new Date(year, month, d);
+            let dayOfWeek = currentDate.getDay();
+            if (dayOfWeek !== 5 && dayOfWeek !== 6) days.push(currentDate);
         }
+        return days;
     }
-    return days;
-}
 
     function timeToMinutes(timeStr) {
         if (!timeStr) return null;
@@ -265,56 +184,82 @@
         return getDailyRate(teacher, year, month) / shiftMinutes;
     }
 
-    // ======================== دوال Firebase ========================
+    // ======================== دوال Firebase (معدلة) ========================
     async function loadData() {
         try {
             const snapshot = await get(child(ref(db), '/'));
             if (snapshot.exists()) {
                 const data = snapshot.val();
-                teachers = data.teachers || [];
-                // تأكد من وجود monthlyPoints لكل معلمة (للتوافق مع الإصدارات السابقة)
-                teachers.forEach(t => {
-                    if (!t.monthlyPoints) t.monthlyPoints = {};
-                });
+                // تحويل كائن المعلمات إلى مصفوفة
+                if (data.teachers && typeof data.teachers === 'object') {
+                    teachers = Object.values(data.teachers).map(t => ({
+                        ...t,
+                        monthlyPoints: t.monthlyPoints || {}
+                    }));
+                } else {
+                    teachers = [];
+                }
                 adminPassword = data.adminPassword || '1234';
-                currentTeacherId = data.currentTeacherId || null;
             } else {
                 teachers = [];
                 adminPassword = '1234';
-                currentTeacherId = null;
             }
         } catch (error) {
             console.error("خطأ في تحميل البيانات:", error);
         }
     }
 
+    // حفظ كل البيانات (يُستخدم عند إضافة/حذف معلمة أو تغيير باسورد الإدارة)
     async function saveData() {
         try {
+            // تحويل مصفوفة المعلمات إلى كائن مفاتيحه ids
+            const teachersObj = {};
+            teachers.forEach(t => { teachersObj[t.id] = t; });
             await set(ref(db, '/'), {
-                teachers: teachers,
-                adminPassword: adminPassword,
-                currentTeacherId: currentTeacherId
+                teachers: teachersObj,
+                adminPassword: adminPassword
             });
         } catch (error) {
             console.error("خطأ في حفظ البيانات:", error);
         }
     }
 
-    // تسجيل الدخول التلقائي للمعلمة
-    async function autoLoginTeacher() {
-    if (currentTeacherId) {
-        let teacher = teachers.find(t => t.id == currentTeacherId);
-        if (teacher) {
-            showTeacherPanel(teacher);
-            return true;
-        } else {
-            // إذا لم نجد المعلمة، نُفرغ currentTeacherId
-            currentTeacherId = null;
-            await saveData();
+    // حفظ معلمة واحدة فقط (يُستخدم عند تسجيل حضور/انصراف أو تعديل يومي)
+    async function saveTeacher(teacher) {
+        try {
+            await set(ref(db, `teachers/${teacher.id}`), teacher);
+            // تحديث المصفوفة المحلية
+            const index = teachers.findIndex(t => t.id === teacher.id);
+            if (index !== -1) teachers[index] = teacher;
+        } catch (error) {
+            console.error("خطأ في حفظ المعلمة:", error);
         }
     }
-    return false;
-}
+
+    // ======================== إدارة الجلسة (localStorage) ========================
+    function getCurrentTeacherId() {
+        return localStorage.getItem('currentTeacherId');
+    }
+
+    function setCurrentTeacherId(id) {
+        if (id) localStorage.setItem('currentTeacherId', id);
+        else localStorage.removeItem('currentTeacherId');
+    }
+
+    // تسجيل الدخول التلقائي من localStorage
+    async function autoLoginTeacher() {
+        const savedId = getCurrentTeacherId();
+        if (savedId) {
+            const teacher = teachers.find(t => t.id === savedId);
+            if (teacher) {
+                showTeacherPanel(teacher);
+                return true;
+            } else {
+                setCurrentTeacherId(null); // معرف غير صالح
+            }
+        }
+        return false;
+    }
 
     // ======================== إظهار وإخفاء الشاشات ========================
     function showMain() {
@@ -350,32 +295,29 @@
         renderTeacherCalendar(teacher);
     }
 
-    // ======================== إدارة الإضافة والتعديل ========================
-    function renderAdminContent(view, data) {
+    // ======================== إدارة المعلمات (إضافة/تعديل/حذف) ========================
+    function renderAdminContent(view) {
         let contentDiv = document.getElementById('adminContent');
         if (view === 'main') {
             let html = '<h4>قائمة المعلمات</h4><table class="table table-bordered"><thead><tr><th>الاسم</th><th>اليوزر</th><th>الراتب</th><th>الإجراءات</th></tr></thead><tbody>';
             teachers.forEach(t => {
                 html += `<tr><td>${t.name}</td><td>${t.username}</td><td>${t.baseSalary}</td>
-                    <td><button class="btn btn-sm btn-warning" onclick="editTeacher('${t.id}')">تعديل</button>
-                    <button class="btn btn-sm btn-danger" onclick="deleteTeacher('${t.id}')">حذف</button></td></tr>`;
+                    <td><button class="btn btn-sm btn-warning" onclick="window.editTeacher('${t.id}')">تعديل</button>
+                    <button class="btn btn-sm btn-danger" onclick="window.deleteTeacher('${t.id}')">حذف</button></td></tr>`;
             });
             html += '</tbody></table>';
             contentDiv.innerHTML = html;
-        } else if (view === 'addTeacher') {
-            showTeacherModal();
         }
     }
 
     window.editTeacher = function(id) {
-        let teacher = teachers.find(t => t.id == id);
-        if (!teacher) return;
-        showTeacherModal(teacher);
+        let teacher = teachers.find(t => t.id === id);
+        if (teacher) showTeacherModal(teacher);
     };
 
     window.deleteTeacher = async function(id) {
         if (confirm('هل أنت متأكد من حذف المعلمة؟')) {
-            teachers = teachers.filter(t => t.id != id);
+            teachers = teachers.filter(t => t.id !== id);
             await saveData();
             renderAdminContent('main');
         }
@@ -413,10 +355,10 @@
             password: document.getElementById('password').value,
             baseSalary: parseFloat(document.getElementById('salary').value) || 0,
             attendance: [],
-            monthlyPoints: {} // تهيئة كائن النقاط الشهرية
+            monthlyPoints: {}
         };
         if (id) {
-            let index = teachers.findIndex(t => t.id == id);
+            let index = teachers.findIndex(t => t.id === id);
             if (index !== -1) teachers[index] = { ...teachers[index], ...teacher, monthlyPoints: teachers[index].monthlyPoints || {} };
         } else {
             teachers.push(teacher);
@@ -426,7 +368,7 @@
         renderAdminContent('main');
     });
 
-    // ======================== حضور وانصراف المعلمة ========================
+    // ======================== حضور وانصراف المعلمة (باستخدام saveTeacher) ========================
     function renderTeacherCalendar(teacher) {
         let days = getWorkingDaysInMonth(currentYear, currentMonth);
         let html = '<h5>أيام العمل لهذا الشهر</h5><table class="table table-sm table-bordered"><thead><tr><th>التاريخ</th><th>الحضور</th><th>الانصراف</th><th>تأخير</th><th>مبكر</th><th>إضافي</th></tr></thead><tbody>';
@@ -454,53 +396,58 @@
     }
 
     document.getElementById('checkInBtn').addEventListener('click', async function() {
-        if (!currentTeacherId) return;
-        let teacher = teachers.find(t => t.id == currentTeacherId);
+        const teacherId = getCurrentTeacherId();
+        if (!teacherId) return;
+        let teacher = teachers.find(t => t.id === teacherId);
         if (!teacher) return;
+
         let today = formatDateLocal(new Date());
         let dayOfWeek = new Date().getDay();
         if (dayOfWeek === 5 || dayOfWeek === 6) { alert('اليوم عطلة'); return; }
+
         let att = teacher.attendance || [];
         let existing = att.find(a => a.date === today);
-        if (existing) {
-            if (existing.checkIn) { alert('تم تسجيل الحضور مسبقاً'); return; }
-        }
+        if (existing && existing.checkIn) { alert('تم تسجيل الحضور مسبقاً'); return; }
+
         let now = new Date();
         let timeStr = now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0');
+
         if (!existing) {
             att.push({ date: today, checkIn: timeStr, checkOut: null });
         } else {
             existing.checkIn = timeStr;
         }
         teacher.attendance = att;
-        await saveData();
+        await saveTeacher(teacher);   // حفظ معلمة واحدة فقط
         renderTeacherCalendar(teacher);
     });
 
     document.getElementById('checkOutBtn').addEventListener('click', async function() {
-        if (!currentTeacherId) return;
-        let teacher = teachers.find(t => t.id == currentTeacherId);
+        const teacherId = getCurrentTeacherId();
+        if (!teacherId) return;
+        let teacher = teachers.find(t => t.id === teacherId);
         if (!teacher) return;
+
         let today = formatDateLocal(new Date());
         let att = teacher.attendance || [];
         let existing = att.find(a => a.date === today);
         if (!existing || !existing.checkIn) { alert('يجب تسجيل الحضور أولاً'); return; }
         if (existing.checkOut) { alert('تم تسجيل الانصراف مسبقاً'); return; }
+
         let now = new Date();
         let timeStr = now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0');
         existing.checkOut = timeStr;
         teacher.attendance = att;
-        await saveData();
+        await saveTeacher(teacher);
         renderTeacherCalendar(teacher);
     });
 
-    // ======================== تقارير (مع دعم النقاط الشهرية) ========================
+    // ======================== تقارير ========================
     function calculateTeacherSummary(teacher, month, year) {
         let days = getWorkingDaysInMonth(year, month);
         let dailyRate = getDailyRate(teacher, year, month);
         let minuteRate = getMinuteRate(teacher, year, month);
         let totalDays = 0, totalDelay = 0, totalEarly = 0, totalExtra = 0;
-        // النقاط الخاصة بهذا الشهر
         let monthKey = `${year}-${(month+1).toString().padStart(2,'0')}`;
         let totalPoints = (teacher.monthlyPoints && teacher.monthlyPoints[monthKey]) || 0;
 
@@ -520,7 +467,7 @@
         });
         let basePay = totalDays * dailyRate;
         let adjustments = (totalExtra - totalDelay - totalEarly) * minuteRate;
-        let pointsValue = totalPoints * (dailyRate / 20); // نقطة = 1/20 من أجر اليوم
+        let pointsValue = totalPoints * (dailyRate / 20);
         let finalSalary = basePay + adjustments + pointsValue;
         return { totalDays, totalDelay, totalEarly, totalExtra, totalPoints, basePay, adjustments, pointsValue, finalSalary };
     }
@@ -531,7 +478,7 @@
             let sum = calculateTeacherSummary(t, currentMonth, currentYear);
             html += `<tr><td>${t.name}</td><td>${sum.totalDays}</td><td>${sum.totalDelay}</td><td>${sum.totalEarly}</td><td>${sum.totalExtra}</td><td>${sum.totalPoints}</td><td>${sum.finalSalary.toFixed(2)}</td></tr>`;
         });
-        html += '</tbody></table><button class="btn btn-primary" onclick="printPDF(\'summaryTable\')">طباعة PDF</button>';
+        html += '</tbody></table><button class="btn btn-primary" onclick="window.printPDF(\'summaryTable\')">طباعة PDF</button>';
         document.getElementById('adminContent').innerHTML = html;
     });
 
@@ -572,42 +519,44 @@
         html2pdf().from(element).save();
     };
 
-    // ======================== تعديل التسجيلات (مع دعم النقاط الشهرية) ========================
+    // ======================== تعديل التسجيلات (مع إصلاح الأزرار المفقودة) ========================
     document.getElementById('editAttendanceBtn').addEventListener('click', function() {
         let html = '<h4>تعديل تسجيلات الحضور</h4><div class="row"><div class="col-4">اختر المعلمة: <select id="editTeacherSelect" class="form-select">';
         teachers.forEach(t => html += `<option value="${t.id}">${t.name}</option>`);
         html += '</select></div><div class="col-4">اختر اليوم: <input type="date" id="editDate" class="form-control"></div><div class="col-4"><button class="btn btn-primary mt-4" id="loadEdit">عرض</button></div></div>';
         html += '<div id="editArea"></div>';
         document.getElementById('adminContent').innerHTML = html;
+
         document.getElementById('loadEdit').addEventListener('click', function() {
             let teacherId = document.getElementById('editTeacherSelect').value;
             let date = document.getElementById('editDate').value;
             if (!teacherId || !date) return;
-            let teacher = teachers.find(t => t.id == teacherId);
+            let teacher = teachers.find(t => t.id === teacherId);
             if (!teacher) return;
             let att = teacher.attendance ? teacher.attendance.find(a => a.date === date) : null;
-            let area = document.getElementById('editArea');
-            // مفتاح الشهر من التاريخ المحدد
             let [year, month] = date.split('-');
             let monthKey = `${year}-${month}`;
             let currentPoints = (teacher.monthlyPoints && teacher.monthlyPoints[monthKey]) || 0;
 
+            let area = document.getElementById('editArea');
             area.innerHTML = `
                 <hr><h6>تعديل يوم ${date}</h6>
                 <div class="row">
                     <div class="col-3">حضور: <input type="time" id="editIn" value="${att?.checkIn || ''}"></div>
                     <div class="col-3">انصراف: <input type="time" id="editOut" value="${att?.checkOut || ''}"></div>
                     <div class="col-3"><button class="btn btn-success" id="saveEditDay">حفظ</button></div>
+                    <div class="col-3"><button class="btn btn-info" id="addWorkDay">إضافة يوم عمل كامل</button></div>
+                    <div class="col-3"><button class="btn btn-danger" id="deductWorkDay">خصم اليوم</button></div>
                 </div>
-                <hr><h6>إضافة/خصم يوم أو نقاط</h6>
+                <hr><h6>إضافة/خصم نقاط</h6>
                 <div class="row">
-                    
                     <div class="col-3"><input type="number" id="pointsInput" placeholder="نقاط (موجب/سالب)" value="0"></div>
                     <div class="col-3"><button class="btn btn-warning" id="applyPoints">تطبيق نقاط</button></div>
                 </div>
                 <div class="mt-2">النقاط الحالية لهذا الشهر: <strong>${currentPoints}</strong></div>
             `;
 
+            // حفظ تعديل اليوم (حضور/انصراف)
             document.getElementById('saveEditDay').addEventListener('click', async function() {
                 let inVal = document.getElementById('editIn').value;
                 let outVal = document.getElementById('editOut').value;
@@ -618,10 +567,11 @@
                 } else {
                     teacher.attendance.push({ date, checkIn: inVal, checkOut: outVal });
                 }
-                await saveData();
+                await saveTeacher(teacher);
                 alert('تم الحفظ');
             });
 
+            // إضافة يوم عمل كامل (باستخدام وقت البدء والانتهاء الافتراضي)
             document.getElementById('addWorkDay').addEventListener('click', async function() {
                 if (!teacher.attendance) teacher.attendance = [];
                 let existing = teacher.attendance.find(a => a.date === date);
@@ -631,24 +581,25 @@
                     existing.checkIn = teacher.workStartTime;
                     existing.checkOut = teacher.workEndTime;
                 }
-                await saveData();
+                await saveTeacher(teacher);
                 alert('تم إضافة يوم عمل كامل');
             });
 
+            // خصم اليوم (حذف التسجيل)
             document.getElementById('deductWorkDay').addEventListener('click', async function() {
                 teacher.attendance = teacher.attendance.filter(a => a.date !== date);
-                await saveData();
+                await saveTeacher(teacher);
                 alert('تم خصم اليوم');
             });
 
+            // تطبيق النقاط
             document.getElementById('applyPoints').addEventListener('click', async function() {
                 let pts = parseInt(document.getElementById('pointsInput').value);
                 if (isNaN(pts)) return;
                 if (!teacher.monthlyPoints) teacher.monthlyPoints = {};
                 teacher.monthlyPoints[monthKey] = (teacher.monthlyPoints[monthKey] || 0) + pts;
-                await saveData();
+                await saveTeacher(teacher);
                 alert(`تم تعديل النقاط. الإجمالي الآن: ${teacher.monthlyPoints[monthKey]}`);
-                // تحديث عرض النقاط
                 document.querySelector('#editArea .mt-2 strong').innerText = teacher.monthlyPoints[monthKey];
             });
         });
@@ -675,10 +626,7 @@
             reader.onload = async function(ev) {
                 let data = JSON.parse(ev.target.result);
                 teachers = data.teachers || [];
-                // تأكد من وجود monthlyPoints لكل معلمة بعد الاستعادة
-                teachers.forEach(t => {
-                    if (!t.monthlyPoints) t.monthlyPoints = {};
-                });
+                teachers.forEach(t => { if (!t.monthlyPoints) t.monthlyPoints = {}; });
                 adminPassword = data.adminPassword || '1234';
                 await saveData();
                 alert('تمت الاستعادة');
@@ -704,7 +652,7 @@
     document.getElementById('backFromAdminLogin').addEventListener('click', showMain);
     document.getElementById('backFromTeacherLogin').addEventListener('click', showMain);
     document.getElementById('logoutAdmin').addEventListener('click', function() { showMain(); });
-    document.getElementById('logoutTeacher').addEventListener('click', function() { currentTeacherId = null; saveData(); showMain(); });
+    document.getElementById('logoutTeacher').addEventListener('click', function() { setCurrentTeacherId(null); showMain(); });
 
     document.getElementById('submitAdminLogin').addEventListener('click', function() {
         if (document.getElementById('adminPass').value === adminPassword) {
@@ -719,8 +667,7 @@
         let pass = document.getElementById('teacherPassword').value;
         let teacher = teachers.find(t => t.username === user && t.password === pass);
         if (teacher) {
-            currentTeacherId = teacher.id;
-            await saveData();
+            setCurrentTeacherId(teacher.id);
             showTeacherPanel(teacher);
         } else {
             document.getElementById('teacherLoginError').innerText = 'بيانات دخول غير صحيحة';
@@ -736,6 +683,6 @@
             showMain();
         }
     })();
-</script>
+    </script>
 </body>
 </html>
