@@ -72,6 +72,7 @@
             </div>
             <div class="row mb-3">
                 <div class="col-md-3"><button class="btn btn-success w-100" id="backupBtn"><i class="fas fa-download"></i> نسخة احتياطية</button></div>
+                <div class="col-md-3"><button class="btn btn-outline-primary w-100" id="exportRawBtn"><i class="fas fa-shield-alt"></i> تصدير آمن كامل</button></div>
                 <div class="col-md-3"><button class="btn btn-success w-100" id="restoreBtn"><i class="fas fa-upload"></i> استعادة نسخة</button></div>
                 <div class="col-md-3"><button class="btn btn-danger w-100" id="changeAdminPassBtn"><i class="fas fa-key"></i> تغيير باسورد الإدارة</button></div>
             </div>
@@ -136,6 +137,36 @@
         let currentYear = new Date().getFullYear();
         let teachersUnsubscribe = null;
         let officialHolidays = {};
+
+
+        function generateTeacherId() {
+            if (window.crypto && crypto.randomUUID) return crypto.randomUUID();
+            return Date.now().toString() + '_' + Math.random().toString(36).slice(2, 10);
+        }
+
+        function sanitizeFirebaseKey(value) {
+            return String(value || '').replace(/[.#$\[\]/]/g, '_');
+        }
+
+        function teacherToFirebasePayload(teacher, current = {}) {
+            const existingAttendance = current?.attendance || attendanceArrayToObject(teacher.attendance) || {};
+            const existingPoints = current?.monthlyPoints || teacher.monthlyPoints || {};
+            return {
+                ...(current || {}),
+                id: teacher.id,
+                name: teacher.name || '',
+                hireDate: teacher.hireDate || '',
+                qualification: teacher.qualification || '',
+                jobDescription: teacher.jobDescription || '',
+                workStartTime: teacher.workStartTime || '08:00',
+                workEndTime: teacher.workEndTime || '15:00',
+                username: teacher.username || '',
+                password: teacher.password || '',
+                baseSalary: parseFloat(teacher.baseSalary) || 0,
+                attendance: existingAttendance,
+                monthlyPoints: existingPoints
+            };
+        }
 
         // تحويل 24h إلى 12h بصيغة AM/PM
         function formatTo12Hour(time24) {
@@ -210,9 +241,10 @@
             return result;
         }
 
-        function normalizeTeacher(raw) {
+        function normalizeTeacher(raw, fallbackId = null) {
+            raw = raw || {};
             return {
-                id: raw.id,
+                id: sanitizeFirebaseKey(raw.id || fallbackId || generateTeacherId()),
                 name: raw.name || '',
                 hireDate: raw.hireDate || '',
                 qualification: raw.qualification || '',
@@ -240,10 +272,10 @@
                 adminPassword = data.adminPassword || '1234';
                 officialHolidays = data.officialHolidays || {};
                 if (Array.isArray(data.teachers)) {
-                    teachers = data.teachers.map(t => normalizeTeacher(t));
+                    teachers = data.teachers.map((t, idx) => normalizeTeacher(t, String(idx)));
                     await migrateTeachersArrayToObject();
                 } else {
-                    teachers = Object.values(data.teachers || {}).map(t => normalizeTeacher(t));
+                    teachers = Object.entries(data.teachers || {}).map(([key, t]) => normalizeTeacher(t, key));
                 }
             } catch (error) {
                 console.error("خطأ في تحميل البيانات:", error);
@@ -252,14 +284,17 @@
         }
 
         async function migrateTeachersArrayToObject() {
-            let mapped = {};
+            // حماية: لا نستخدم set على الجذر حتى لا يتم مسح أي بيانات أخرى بالخطأ
+            const updates = {};
             teachers.forEach(t => {
-                mapped[t.id] = {
+                const safeId = sanitizeFirebaseKey(t.id || generateTeacherId());
+                updates['teachers/' + safeId] = {
                     ...t,
+                    id: safeId,
                     attendance: attendanceArrayToObject(t.attendance)
                 };
             });
-            await update(ref(db, '/'), { teachers: mapped });
+            if (Object.keys(updates).length) await update(ref(db, '/'), updates);
         }
 
         function subscribeTeachersLive() {
@@ -268,9 +303,9 @@
             teachersUnsubscribe = onValue(teachersRef, (snapshot) => {
                 const value = snapshot.val() || {};
                 if (Array.isArray(value)) {
-                    teachers = value.map(t => normalizeTeacher(t));
+                    teachers = value.map((t, idx) => normalizeTeacher(t, String(idx)));
                 } else {
-                    teachers = Object.values(value).map(t => normalizeTeacher(t));
+                    teachers = Object.entries(value).map(([key, t]) => normalizeTeacher(t, key));
                 }
                 if (!document.getElementById('adminPanel').classList.contains('hidden')) {
                     renderAdminContent('main');
@@ -309,8 +344,11 @@
         }
 
         async function saveTeacherRecord(teacher) {
-            const payload = { ...teacher, attendance: attendanceArrayToObject(teacher.attendance) };
-            await set(ref(db, 'teachers/' + teacher.id), payload);
+            teacher.id = sanitizeFirebaseKey(teacher.id || generateTeacherId());
+            const teacherRef = ref(db, 'teachers/' + teacher.id);
+            await runTransaction(teacherRef, (current) => {
+                return teacherToFirebasePayload(teacher, current || {});
+            });
         }
 
         async function deleteTeacherRecord(id) {
@@ -321,13 +359,19 @@
             await set(ref(db, 'adminPassword'), adminPassword);
         }
 
-        async function replaceAllData(newTeachers, newAdminPassword) {
-            const mapped = {};
+        async function replaceAllData(newTeachers, newAdminPassword, newOfficialHolidays = {}) {
+            // استعادة آمنة: دمج فقط، لا حذف ولا استبدال كامل لقاعدة البيانات
+            const updates = {};
             newTeachers.forEach(t => {
-                const normalized = normalizeTeacher(t);
-                mapped[normalized.id] = { ...normalized, attendance: attendanceArrayToObject(normalized.attendance) };
+                const normalized = normalizeTeacher(t, t.id);
+                updates['teachers/' + normalized.id] = {
+                    ...normalized,
+                    attendance: attendanceArrayToObject(normalized.attendance)
+                };
             });
-            await set(ref(db, '/'), { teachers: mapped, adminPassword: newAdminPassword || '1234', officialHolidays });
+            if (newAdminPassword) updates.adminPassword = newAdminPassword;
+            updates.officialHolidays = { ...(officialHolidays || {}), ...(newOfficialHolidays || {}) };
+            await update(ref(db, '/'), updates);
         }
 
         async function autoLoginTeacher() {
@@ -431,7 +475,7 @@
         }
 
         document.getElementById('saveTeacherBtn').addEventListener('click', async function() {
-            let id = document.getElementById('teacherId').value || Date.now().toString();
+            let id = sanitizeFirebaseKey(document.getElementById('teacherId').value || generateTeacherId());
             let oldTeacher = teachers.find(t => t.id == id);
             let teacher = {
                 id,
@@ -782,7 +826,25 @@
             URL.revokeObjectURL(url);
         });
 
-        document.getElementById('restoreBtn').addEventListener('click', function() {
+        
+        document.getElementById('exportRawBtn').addEventListener('click', async function() {
+            try {
+                const snapshot = await get(child(ref(db), '/'));
+                const data = snapshot.exists() ? snapshot.val() : {};
+                let blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+                let url = URL.createObjectURL(blob);
+                let a = document.createElement('a');
+                a.href = url;
+                a.download = 'firebase-full-safe-backup-' + new Date().toISOString().slice(0,10) + '.json';
+                a.click();
+                URL.revokeObjectURL(url);
+            } catch (error) {
+                console.error(error);
+                alert('تعذر تصدير النسخة الآمنة');
+            }
+        });
+
+document.getElementById('restoreBtn').addEventListener('click', function() {
             let input = document.createElement('input');
             input.type = 'file';
             input.accept = '.json';
@@ -794,7 +856,7 @@
                         let data = JSON.parse(ev.target.result);
                         const restoredTeachers = Array.isArray(data.teachers) ? data.teachers : Object.values(data.teachers || {});
                         officialHolidays = data.officialHolidays || {};
-                        await replaceAllData(restoredTeachers, data.adminPassword || '1234');
+                        await replaceAllData(restoredTeachers, data.adminPassword || adminPassword, officialHolidays);
                         alert('تمت الاستعادة');
                     } catch (error) {
                         console.error(error);
